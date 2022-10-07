@@ -1,3 +1,4 @@
+import enum
 from itertools import cycle
 from typing import NamedTuple
 
@@ -70,12 +71,35 @@ class Game:
 
     def has_winner(self):
         """Return True if the game has a winner, and False otherwise."""
+        for combo in self._winning_combos:
+            old_label = None
+            is_equal = True
+            for move in combo:
+                label = self._current_moves[move[0]][move[1]].label
+                if(old_label is None):
+                    old_label = label
+                    continue
+                if(old_label != label):
+                    is_equal = False
+                    break
+            if(is_equal):
+                self._has_winner = True
+                break
+
         return self._has_winner
 
     def is_tied(self):
         """Return True if the game is tied, and False otherwise."""
         # TODO: check whether a tie was reached.
         # There is no winner and all moves have been tried.
+        if not(self.has_winner()):
+            for row, row_content in enumerate(self._current_moves):
+                for col, _ in enumerate(row_content):
+                    if(row_content[col].label == ""):
+                        return False
+            return True
+        else:
+            return False
 
     def toggle_player(self):
         """Return a toggled player."""
