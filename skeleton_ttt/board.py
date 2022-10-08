@@ -40,8 +40,13 @@ class Board(tk.Tk):
             self.rowconfigure(row, weight=1, minsize=50)
             self.columnconfigure(row, weight=1, minsize=75)
             for col in range(self._game.board_size):
-                button = tk.Button(
+                border = tk.Frame(
                     master=grid_frame,
+                    highlightthickness=3,
+                    highlightbackground="lightblue",
+                )
+                button = tk.Button(
+                    master=border,
                     text="",
                     font=font.Font(size=36, weight="bold"),
                     fg="black",
@@ -51,7 +56,8 @@ class Board(tk.Tk):
                 )
                 self._cells[button] = (row, col)
                 button.bind("<ButtonPress-1>", self.play)
-                button.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
+                button.pack()
+                border.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
 
     def play(self, event):
         """Handle a player's move."""
@@ -84,13 +90,13 @@ class Board(tk.Tk):
     def _highlight_cells(self):
         for button, coordinates in self._cells.items():
             if coordinates in self._game.winner_combo:
-                button.config(highlightbackground="red")
+                button.master.config(highlightbackground="#ff9191")
 
     def reset_board(self):
         """Reset the game's board to play again."""
         self._game.reset_game()
         self._update_display(msg="Ready?")
         for button in self._cells.keys():
-            button.config(highlightbackground="lightblue")
+            button.master.config(highlightbackground="lightblue")
             button.config(text="")
             button.config(fg="black")
