@@ -63,13 +63,27 @@ class Game:
                 if mv.row == move.row and mv.col == move.col and mv.label == move.label : move_not_played = True 
         if move.label == "" : move_not_played = True
         if self.current_player.label != move.label : move_not_played = True
-        no_winner = self.has_winner()
-        return no_winner and move_not_played
+        no_winner = not self.has_winner()
+        return no_winner and not move_not_played
 
     def process_move(self, move):
         """Process the current move and check if it's a win."""
         row, col = move.row, move.col
         self._current_moves[row][col] = move
+        self._has_winner = self.has_winner()
+
+        for combo in self._winning_combos:
+            if (row, col) in combo:
+                is_winning = True
+                for mv in combo:
+                    label = self._current_moves[mv[0]][mv[1]].label
+                    if label != move.label:
+                        is_winning = False
+                        break
+                if is_winning:
+                    self.winner_combo = combo
+                    return
+
         # TODO: check whether the current move leads to a winning combo.
         # Do not return any values but set variables  self._has_winner 
         # and self.winner_combo in case of winning combo.
@@ -86,14 +100,15 @@ class Game:
                 if(old_label is None):
                     old_label = label
                     continue
+                if("" == label):
+                    is_equal = False
+                    break
                 if(old_label != label):
                     is_equal = False
                     break
             if(is_equal):
-                self._has_winner = True
-                break
-
-        return self._has_winner
+                return True
+        return False
 
     def is_tied(self):
         """Return True if the game is tied, and False otherwise."""
@@ -111,7 +126,7 @@ class Game:
     def toggle_player(self):
         """Return a toggled player."""
         try:
-            self._current_player = next(self._players)
+            self.current_player = next(self._players)
         except StopIteration as err:
             print(f"Unexpected {err=}, {type(err)=}")
        
